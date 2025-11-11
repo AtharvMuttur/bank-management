@@ -15,8 +15,9 @@ interface BalanceInfo {
 }
 
 export default function TransactionManager() {
-  const [activeTab, setActiveTab] = useState<"balance" | "deposit" | "withdraw">("balance")
+  const [activeTab, setActiveTab] = useState<"balance" | "deposit" | "withdraw" | "transfer">("balance")
   const [accountNumber, setAccountNumber] = useState("")
+  const [toAccountNumber, setToAccountNumber] = useState("")
   const [amount, setAmount] = useState("")
   const [balanceInfo, setBalanceInfo] = useState<BalanceInfo | null>(null)
   const [message, setMessage] = useState("")
@@ -31,7 +32,7 @@ export default function TransactionManager() {
     setError("")
   }
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): HeadersInit => {
     const session = getAuthSession()
     return session ? { Authorization: `Bearer ${session.token}` } : {}
   }
@@ -180,6 +181,66 @@ export default function TransactionManager() {
     }
   }
 
+  const handleTransfer = async (e: React.FormEvent) => {
+    e.preventDefault()
+    resetMessages()
+
+    if (!accountNumber.trim() || !toAccountNumber.trim() || !amount.trim()) {
+      setError("Please enter both account numbers and amount")
+      return
+    }
+
+    if (accountNumber === toAccountNumber) {
+      setError("Cannot transfer to the same account")
+      return
+    }
+
+    const transferAmount = Number.parseFloat(amount)
+    if (isNaN(transferAmount) || transferAmount <= 0) {
+      setError("Amount must be a positive number")
+      return
+    }
+
+    if (loading) {
+      return
+    }
+
+    setLoading(true)
+    try {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+      abortControllerRef.current = new AbortController()
+
+      const response = await fetch(`${API_URL}/api/transactions/transfer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({ from_acc_no: accountNumber, to_acc_no: toAccountNumber, amount: transferAmount }),
+        signal: abortControllerRef.current.signal,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Transfer failed")
+      }
+
+      const data = await response.json()
+      setMessage(`Transfer successful! ₹${transferAmount.toFixed(2)} transferred from ${accountNumber} to ${toAccountNumber}. New balance: ₹${Number(data.fromBalance).toFixed(2)}`)
+      setAmount("")
+      setToAccountNumber("")
+      setBalanceInfo(null)
+    } catch (err) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setError(err instanceof Error ? err.message : "Transfer failed")
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-foreground">Account Transactions</h2>
@@ -189,6 +250,7 @@ export default function TransactionManager() {
           { id: "balance", label: "Check Balance" },
           { id: "deposit", label: "Deposit Money" },
           { id: "withdraw", label: "Withdraw Money" },
+          { id: "transfer", label: "Transfer Money" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -322,6 +384,53 @@ export default function TransactionManager() {
               className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {loading ? "Processing..." : "Withdraw Money"}
+            </Button>
+          </form>
+        )}
+
+        {activeTab === "transfer" && (
+          <form onSubmit={handleTransfer} className="space-y-4 max-w-md">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">From Account Number</label>
+              <input
+                type="text"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder="Enter source account number"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">To Account Number</label>
+              <input
+                type="text"
+                value={toAccountNumber}
+                onChange={(e) => setToAccountNumber(e.target.value)}
+                placeholder="Enter destination account number"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-foreground">Transfer Amount (₹)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {loading ? "Processing..." : "Transfer Money"}
             </Button>
           </form>
         )}
