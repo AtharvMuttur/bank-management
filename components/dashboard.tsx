@@ -38,11 +38,13 @@ export default function Dashboard() {
 
   const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): HeadersInit => {
     const session = getAuthSession()
     if (!session) {
       console.warn("[v0] No auth session found")
-      return {}
+      return {
+        "Content-Type": "application/json",
+      }
     }
     return {
       Authorization: `Bearer ${session.token}`,
@@ -151,7 +153,7 @@ export default function Dashboard() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
+                contentStyle={{ backgroundColor: "#ffffffff", border: "1px solid #334155", borderRadius: "8px" }}
               />
             </PieChart>
           </ResponsiveContainer>

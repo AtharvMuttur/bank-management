@@ -54,7 +54,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-background to-background/80 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Bank Management System</CardTitle>
+          <CardTitle className="text-2xl text-white">Bank Management System</CardTitle>
           <CardDescription>Sign in to continue</CardDescription>
         </CardHeader>
         <CardContent>
@@ -74,6 +74,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={loading}
+                className="text-white"
               />
             </div>
 
@@ -85,6 +86,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
+                className="text-white"
               />
             </div>
 
