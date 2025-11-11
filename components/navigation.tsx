@@ -1,6 +1,6 @@
 "use client"
 
-import { Database, BarChart3, Settings, Building2, LogOut } from "lucide-react"
+import { Database, BarChart3, Settings, Building2, LogOut, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface NavigationProps {
@@ -14,6 +14,7 @@ export default function Navigation({ currentSection, onNavigate, user, onLogout 
   const navItems = [
     ...(user?.role === "admin" ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }] : []),
     { id: "data", label: "Data Management", icon: Settings },
+    { id: "transactions", label: "Transactions", icon: ArrowLeftRight },
     ...(user?.role === "admin"
       ? [
           { id: "queries", label: "Queries", icon: Database },

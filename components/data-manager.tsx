@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { isAdmin } from "@/lib/auth"
 import CustomerForm from "./forms/customer-form"
 import AccountForm from "./forms/account-form"
-import TransactionManager from "./transaction-manager"
 import AccountDetails from "./account-details"
 import BranchForm from "./forms/branch-form"
 
@@ -19,7 +18,6 @@ export default function DataManager() {
   const baseTabs = [
     { id: "customers", label: "Customers", component: CustomerForm },
     { id: "accounts", label: "Accounts", component: AccountForm },
-    { id: "transactions", label: "Transactions", component: TransactionManager },
   ]
 
   const adminTabs = [

@@ -6,6 +6,7 @@ import Dashboard from "@/components/dashboard"
 import QueryExecutor from "@/components/query-executor"
 import DataManager from "@/components/data-manager"
 import BranchSummary from "@/components/branch-summary"
+import TransactionManager from "@/components/transaction-manager"
 import Login from "../components/login"
 import { getAuthSession, clearAuthSession, isAdmin } from "../lib/auth"
 
@@ -54,6 +55,8 @@ export default function Home() {
         )
       case "data":
         return <DataManager />
+      case "transactions":
+        return <TransactionManager />
       case "branch-summary":
         return isAdmin() ? (
           <BranchSummary />
