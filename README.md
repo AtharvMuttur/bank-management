@@ -77,7 +77,7 @@ Required packages:
 **Terminal 1 - Start Backend Server:**
 
 \`\`\`bash
-npm run server
+npm run server:dev
 \`\`\`
 
 The API will be available at `http://localhost:5000`
